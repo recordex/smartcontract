@@ -4,7 +4,6 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
 contract Record is AccessControl {
-    bytes32 public constant ADMIN_ROLE = keccak256("DEFAULT_ADMIN_ROLE");
     // 定義: ハッシュ値を追加するための役割
     bytes32 public constant HASHER_ROLE = keccak256("HASHER_ROLE");
 
@@ -15,7 +14,7 @@ contract Record is AccessControl {
     constructor(address admin) {
         require(admin != address(0), "Invalid admin address");
 
-        _grantRole(ADMIN_ROLE, admin); // 初期管理者に管理者役割を付与
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender); // 初期管理者に管理者役割を付与
         _grantRole(HASHER_ROLE, admin);        // ハッシュ追加役割も初期管理者に付与
     }
 

@@ -8,7 +8,6 @@ describe('Record Contract', function () {
     const [owner, user, anotherUser] = await ethers.getSigners();
     const hardhatRecord = await ethers.deployContract("Record", [owner.address]);
 
-    // expect(await hardhatRecord.hasRole(utils.keccak256("DEFAULT_ADMIN_ROLE"), owner.address)).to.be.true;
     expect(await hardhatRecord.hasRole(utils.keccak256("HASHER_ROLE"), owner.address)).to.be.true;
     expect(await hardhatRecord.hasRole(utils.keccak256("HASHER_ROLE"), user.address)).to.be.false;
     expect(await hardhatRecord.hasRole(utils.keccak256("HASHER_ROLE"), anotherUser.address)).to.be.false;
@@ -42,25 +41,30 @@ describe('Record Contract', function () {
     );
   });
 
-  // it('should allow admin to grant hash addition role to others', async function () {
-  //   const [owner, user, anotherUser] = await ethers.getSigners();
-  //   const hardhatRecord = await ethers.deployContract("Record", [owner.address]);
-  //
-  //   await hardhatRecord.grantHasherRole(user.address);
-  //   expect(await hardhatRecord.hasRole(utils.keccak256("HASHER_ROLE"), user.address)).to.be.true;
-  // });
-  //
-  // it('should not allow duplicates hashes', async function () {
-  //   await this.record.addHash(fileHash, { from: admin });
-  //   await expectRevert(
-  //     this.record.addHash(fileHash, { from: admin }),
-  //     'This hash is already recorded.'
-  //   );
-  // });
-  //
+  it('owner にロールの付与権限があるかどうか', async function () {
+    const [owner, user, anotherUser] = await ethers.getSigners();
+    const hardhatRecord = await ethers.deployContract("Record", [owner.address]);
+
+    await hardhatRecord.grantHasherRole(user.address);
+    expect(await hardhatRecord.hasRole(utils.keccak256("HASHER_ROLE"), user.address)).to.be.true;
+  });
+
+  it('ハッシュが重複して保存されないことの確認', async function () {
+    const [owner, user, anotherUser] = await ethers.getSigners();
+    const hardhatRecord = await ethers.deployContract("Record", [owner.address]);
+    const fileHash = '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef';
+
+    await hardhatRecord.addHash(fileHash);
+    await expect(hardhatRecord.addHash(fileHash)).to.be.revertedWith("This hash is already recorded.");
+  });
+
+  it('HASHER_ROLE の revoke 権限が owner にあるか', async function () {
   // it('should allow admin to revoke hash addition role from others', async function () {
-  //   await this.record.grantHasherRole(user, { from: admin });
-  //   await this.record.revokeHasherRole(user, { from: admin });
-  //   expect(await this.record.hasRole(Record.HASHER_ROLE, user)).to.be.false;
-  // });
+    const [owner, user, anotherUser] = await ethers.getSigners();
+    const hardhatRecord = await ethers.deployContract("Record", [owner.address]);
+
+    await hardhatRecord.grantHasherRole(user.address);
+    await hardhatRecord.revokeHasherRole(user.address);
+    expect(await hardhatRecord.hasRole(utils.keccak256("HASHER_ROLE"), user)).to.be.false;
+  });
 });
