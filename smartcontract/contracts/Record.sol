@@ -21,7 +21,6 @@ contract Record is AccessControl {
 
     // イベント定義
     event FileAdded(string fileName, bytes32 fileHash, address createdBy, uint256 createdAt);
-//    event FileRead(string fileName, address requestedBy);
     event FileDeleted(string fileName, address deletedBy);
 
     // コントラクトをデプロイするときの初期設定
@@ -34,6 +33,9 @@ contract Record is AccessControl {
         _grantRole(WRITE_ROLE, msg.sender);
         _grantRole(DELETE_ROLE, msg.sender);
     }
+
+    receive() external payable {}
+    fallback() external payable {}
 
     // ファイルを追加するための関数（書き込み権限が必要）
     function addFile(string memory fileName, bytes32 fileHash) public {
@@ -49,6 +51,11 @@ contract Record is AccessControl {
         require(metadataListLength > 0, "File does not exist");
         delete files[fileName];
         emit FileDeleted(fileName, msg.sender);
+    }
+
+    // ファイルのメタデータの一覧を取得するための関数
+    function getFileMetadataHistory(string memory fileName) public view returns (FileMetadata[] memory) {
+        return files[fileName];
     }
 
     // 役割を付与するための関数
