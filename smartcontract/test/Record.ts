@@ -2,6 +2,7 @@ import {ethers} from "hardhat";
 import {expect} from "chai";
 import utils from "web3-utils";
 import {anyValue} from "@nomicfoundation/hardhat-chai-matchers/withArgs";
+import {Record} from "../typechain-types";
 
 // 参考: https://hardhat.org/tutorial/testing-contracts
 
@@ -59,6 +60,28 @@ describe('Record Contract', function () {
     await expect(await hardhatRecord.deleteFile(fileName))
       .to.emit(hardhatRecord, 'FileDeleted')
       .withArgs(fileName, deployer.address);
+  });
+
+  it('正常系: ファイルのハッシュ値の履歴を取得できるか', async function () {
+    const [deployer, user] = await ethers.getSigners();
+    const hardhatRecord = await ethers.deployContract("Record");
+
+    const fileName = 'test.txt';
+    const fileHash = '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef';
+
+    await hardhatRecord.addFile(fileName, fileHash);
+    let fileHashHistory: Record.FileMetadataStructOutput[]
+
+    fileHashHistory = await hardhatRecord.getFileMetadataHistory(fileName);
+    expect(fileHashHistory.length)
+      .to.be.equal(1);
+    expect(fileHashHistory[0].hash)
+      .to.be.equal(fileHash);
+
+    await hardhatRecord.deleteFile(fileName);
+    fileHashHistory = await hardhatRecord.getFileMetadataHistory(fileName);
+    expect(fileHashHistory.length)
+      .to.be.equal(0);
   });
 
   it('異常系: 書き込み権限がないアカウントがファイルの追加を行えないか', async function () {
