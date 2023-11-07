@@ -17,7 +17,7 @@ contract Record is AccessControl {
         uint256 created_at;
     }
     // ファイル名をキーとして、ファイルのメタデータを格納するマッピング
-    mapping(string => FileMetadata[]) private files;
+    mapping(string => FileMetadata[]) public files;
 
     // イベント定義
     event FileAdded(string fileName, bytes32 fileHash, address createdBy, uint256 createdAt);
