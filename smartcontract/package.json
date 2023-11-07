@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "node": "npx hardhat node",
-    "compile": "hardhat compile",
+    "compile": "make compile",
     "test": "hardhat test",
     "deploylocal": "npx hardhat run --network localhost scripts/deploy.ts"
   },
