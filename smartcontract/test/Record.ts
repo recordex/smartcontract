@@ -1,70 +1,86 @@
 import {ethers} from "hardhat";
 import {expect} from "chai";
 import utils from "web3-utils";
+import {anyValue} from "@nomicfoundation/hardhat-chai-matchers/withArgs";
+
+// 参考: https://hardhat.org/tutorial/testing-contracts
 
 describe('Record Contract', function () {
+  it('正常系: デプロイ時にロールが正しく設定されているか', async function () {
+    const [deployer, user, anotherUser] = await ethers.getSigners();
+    const hardhatRecord = await ethers.deployContract("Record");
 
-  it('デプロイ時にロールが正しく設定されているか', async function () {
-    const [owner, user, anotherUser] = await ethers.getSigners();
-    const hardhatRecord = await ethers.deployContract("Record", [owner.address]);
-
-    expect(await hardhatRecord.hasRole(utils.keccak256("HASHER_ROLE"), owner.address)).to.be.true;
-    expect(await hardhatRecord.hasRole(utils.keccak256("HASHER_ROLE"), user.address)).to.be.false;
-    expect(await hardhatRecord.hasRole(utils.keccak256("HASHER_ROLE"), anotherUser.address)).to.be.false;
+    expect(await hardhatRecord.hasRole(utils.keccak256("READ_ROLE"), deployer.address)).to.be.true;
+    expect(await hardhatRecord.hasRole(utils.keccak256("WRITE_ROLE"), deployer.address)).to.be.true;
+    expect(await hardhatRecord.hasRole(utils.keccak256("DELETE_ROLE"), deployer.address)).to.be.true;
+    expect(await hardhatRecord.hasRole(utils.keccak256("READ_ROLE"), user.address)).to.be.false;
+    expect(await hardhatRecord.hasRole(utils.keccak256("READ_ROLE"), anotherUser.address)).to.be.false;
   });
 
-  it('owner アカウントによる addHash メソッドの実行が許可されているか', async function () {
-    const [owner, user, anotherUser] = await ethers.getSigners();
-    const hardhatRecord = await ethers.deployContract("Record", [owner.address]);
+  it('正常系: deployer アカウントが role の付与を行えるか', async function () {
+    const [deployer, user] = await ethers.getSigners();
+    const hardhatRecord = await ethers.deployContract("Record");
 
+    await hardhatRecord.grantRole(utils.keccak256("READ_ROLE"), user.address);
+    expect(await hardhatRecord.hasRole(utils.keccak256("READ_ROLE"), user.address)).to.be.true;
+  });
+
+  it('正常系: deployer アカウントが role の剥奪を行えるか', async function () {
+    const [deployer, user] = await ethers.getSigners();
+    const hardhatRecord = await ethers.deployContract("Record");
+
+    await hardhatRecord.grantRole(utils.keccak256("READ_ROLE"), user.address);
+    await hardhatRecord.revokeRole(utils.keccak256("READ_ROLE"), user.address);
+    expect(await hardhatRecord.hasRole(utils.keccak256("READ_ROLE"), user.address)).to.be.false;
+  });
+
+  it('正常系: 書き込み権限があるアカウントがファイルの追加を行えるか', async function () {
+    const [deployer, user] = await ethers.getSigners();
+    const hardhatRecord = await ethers.deployContract("Record");
+
+    const fileName = 'test.txt';
     const fileHash = '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef';
 
-    await hardhatRecord.addHash(fileHash);
-    expect(await hardhatRecord.isHashRecorded("0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef")).to.be.true;
-    expect(await hardhatRecord.isHashRecorded("0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdee")).to.be.false;
+    // anyValue は、withArgs の引数の値が何であっても良いことを表す。
+    // 参照: https://hardhat.org/hardhat-chai-matchers/docs/overview
+    await expect(await hardhatRecord.addFile(fileName, fileHash))
+      .to.emit(hardhatRecord, 'FileAdded')
+      .withArgs(fileName, fileHash, deployer.address, anyValue);
   });
 
-  it('owner アカウント以外からの addHash メソッドの実行が許可されていないか', async function () {
-    const [owner, user, anotherUser] = await ethers.getSigners();
-    const hardhatRecord = await ethers.deployContract("Record", [owner.address]);
+  it('正常系: 削除権限があるアカウントがファイルの削除を行えるか', async function () {
+    const [deployer, user] = await ethers.getSigners();
+    const hardhatRecord = await ethers.deployContract("Record");
 
+    const fileName = 'test.txt';
     const fileHash = '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef';
 
-
-    await expect(hardhatRecord.connect(user).addHash(fileHash)).to.be.revertedWithCustomError(
-      hardhatRecord,
-      "AccessControlUnauthorizedAccount",
-    );
-    await expect(hardhatRecord.connect(anotherUser).addHash(fileHash)).to.be.revertedWithCustomError(
-      hardhatRecord,
-      "AccessControlUnauthorizedAccount",
-    );
+    await hardhatRecord.addFile(fileName, fileHash);
+    await expect(await hardhatRecord.deleteFile(fileName))
+      .to.emit(hardhatRecord, 'FileDeleted')
+      .withArgs(fileName, deployer.address);
   });
 
-  it('owner にロールの付与権限があるかどうか', async function () {
-    const [owner, user, anotherUser] = await ethers.getSigners();
-    const hardhatRecord = await ethers.deployContract("Record", [owner.address]);
+  it('異常系: 書き込み権限がないアカウントがファイルの追加を行えないか', async function () {
+    const [deployer, user] = await ethers.getSigners();
+    const hardhatRecord = await ethers.deployContract("Record");
 
-    await hardhatRecord.grantHasherRole(user.address);
-    expect(await hardhatRecord.hasRole(utils.keccak256("HASHER_ROLE"), user.address)).to.be.true;
-  });
-
-  it('ハッシュが重複して保存されないことの確認', async function () {
-    const [owner, user, anotherUser] = await ethers.getSigners();
-    const hardhatRecord = await ethers.deployContract("Record", [owner.address]);
+    const fileName = 'test.txt';
     const fileHash = '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef';
 
-    await hardhatRecord.addHash(fileHash);
-    await expect(hardhatRecord.addHash(fileHash)).to.be.revertedWith("This hash is already recorded.");
+    await expect(hardhatRecord.connect(user).addFile(fileName, fileHash))
+      .to.be.revertedWith('Caller does not have write permission');
   });
 
-  it('HASHER_ROLE の revoke 権限が owner にあるか', async function () {
-  // it('should allow admin to revoke hash addition role from others', async function () {
-    const [owner, user, anotherUser] = await ethers.getSigners();
-    const hardhatRecord = await ethers.deployContract("Record", [owner.address]);
+  it('異常系: 削除権限がないアカウントがファイルの削除を行えないか', async function () {
+    const [deployer, user] = await ethers.getSigners();
+    const hardhatRecord = await ethers.deployContract("Record");
 
-    await hardhatRecord.grantHasherRole(user.address);
-    await hardhatRecord.revokeHasherRole(user.address);
-    expect(await hardhatRecord.hasRole(utils.keccak256("HASHER_ROLE"), user)).to.be.false;
+    const fileName = 'test.txt';
+    const fileHash = '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef';
+
+    await hardhatRecord.addFile(fileName, fileHash);
+    await expect(hardhatRecord.connect(user).deleteFile(fileName))
+      .to.be.revertedWith('Caller does not have delete permission');
   });
 });
