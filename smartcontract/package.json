@@ -9,6 +9,7 @@
     "deploylocal": "npx hardhat run --network localhost scripts/deploy.ts"
   },
   "devDependencies": {
+    "@nomicfoundation/hardhat-chai-matchers": "^2.0.2",
     "@nomicfoundation/hardhat-toolbox": "^3.0.0",
     "@nomicfoundation/hardhat-toolbox-viem": "^1.0.0",
     "hardhat": "^2.18.1"
