@@ -19,6 +19,11 @@ contract Record is AccessControl {
     // ファイル名をキーとして、ファイルのメタデータを格納するマッピング
     mapping(string => FileMetadata[]) private files;
 
+    // イベント定義
+    event FileAdded(string fileName, bytes32 fileHash, address createdBy, uint256 createdAt);
+//    event FileRead(string fileName, address requestedBy);
+    event FileDeleted(string fileName, address deletedBy);
+
     // コントラクトをデプロイするときの初期設定
     constructor() {
         // メッセージ送信者（デプロイヤー）に管理者役割を付与
@@ -34,14 +39,7 @@ contract Record is AccessControl {
     function addFile(string memory fileName, bytes32 fileHash) public {
         require(hasRole(WRITE_ROLE, msg.sender), "Caller does not have write permission");
         files[fileName].push(FileMetadata(fileHash, msg.sender, block.timestamp));
-    }
-
-    // ファイルを読み取るための関数（読み取り権限が必要）
-    function readFile(string memory fileName) public view returns (FileMetadata memory) {
-        require(hasRole(READ_ROLE, msg.sender), "Caller does not have read permission");
-        uint256 metadataListLength = files[fileName].length;
-        require(metadataListLength > 0, "File does not exist");
-        return files[fileName][metadataListLength - 1];
+        emit FileAdded(fileName, fileHash, msg.sender, block.timestamp);
     }
 
     // ファイルを削除するための関数（削除権限が必要）
@@ -50,18 +48,17 @@ contract Record is AccessControl {
         uint256 metadataListLength = files[fileName].length;
         require(metadataListLength > 0, "File does not exist");
         delete files[fileName];
+        emit FileDeleted(fileName, msg.sender);
     }
 
     // 役割を付与するための関数
     function grantRole(bytes32 role, address account) public override {
-        // コントラクトの作成者のみが役割を付与できるようにする
         require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "Caller is not an admin");
         super.grantRole(role, account);
     }
 
     // 役割を取り消すための関数
     function revokeRole(bytes32 role, address account) public override {
-        // コントラクトの作成者のみが役割を取り消せるようにする
         require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "Caller is not an admin");
         super.revokeRole(role, account);
     }
