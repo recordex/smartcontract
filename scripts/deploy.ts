@@ -1,11 +1,11 @@
-import { ethers } from "hardhat";
+import { ethers } from 'hardhat';
 
 // 参考: https://hardhat.org/hardhat-runner/docs/guides/deploying
 async function main() {
   // Record コントラクトのデプロイ
-  const record = await ethers.deployContract("Record");
+  const record = await ethers.deployContract('Record');
   await record.waitForDeployment();
-  console.log("Record contract deployed to:", record.target);
+  console.log('Record contract deployed to:', record.target);
 }
 
 main().catch((error) => {
