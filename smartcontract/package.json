@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "lint": "eslint . --ext .ts",
+    "format": "prettier --write .",
+    "fix": "npm run lint && npm run format",
     "node": "npx hardhat node",
     "compile": "make compile",
     "test": "hardhat test",
@@ -12,9 +15,15 @@
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.2",
     "@nomicfoundation/hardhat-toolbox": "^3.0.0",
     "@nomicfoundation/hardhat-toolbox-viem": "^1.0.0",
-    "hardhat": "^2.18.1"
+    "@typescript-eslint/eslint-plugin": "^6.10.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-unused-imports": "^3.0.0",
+    "hardhat": "^2.18.1",
+    "prettier": "3.0.3"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^5.0.0"
+    "@openzeppelin/contracts": "^5.0.0",
+    "eslint": "^8.53.0"
   }
 }
