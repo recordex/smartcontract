@@ -5,4 +5,5 @@ npm run node &
 
 # バックグラウンドで開発用ローカルブロックチェーンが起動されるのを待つ
 sleep 5
+npx hardhat --max-memory 518 compile
 npm run deploylocal
