@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 開発用ローカルブロックチェーンの起動
-npm run node &
+npm run node --hostname localhost &
 
 # バックグラウンドで開発用ローカルブロックチェーンが起動されるのを待つ
 sleep 5
