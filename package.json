@@ -6,7 +6,7 @@
     "lint": "eslint . --ext .ts",
     "format": "prettier --write .",
     "fix": "npm run lint && npm run format",
-    "node": "npx hardhat node",
+    "node": "npx hardhat node --hostname 0.0.0.0",
     "compile": "make compile",
     "test": "hardhat test",
     "deploylocal": "npx hardhat run --network localhost scripts/deploy.ts"
