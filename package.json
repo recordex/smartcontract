@@ -9,7 +9,8 @@
     "node": "npx hardhat node --hostname 0.0.0.0",
     "compile": "make compile",
     "test": "hardhat test",
-    "deploylocal": "npx hardhat run --network localhost scripts/deploy.ts"
+    "deploysepolia": "npx hardhat run scripts/deploy.ts --network sepolia",
+    "deploylocal": "npx hardhat run scripts/deploy.ts --network localhost"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.2",
