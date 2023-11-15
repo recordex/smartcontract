@@ -21,4 +21,7 @@ jobs:
         run: |
           git diff --exit-code || (echo "Code style error" && exit 1)
       - name: Run npm run test
+        env:
+          INFURA_API_KEY: ${{ secrets.INFURA_API_KEY }}
+          SEPOLIA_PRIVATE_KEY: ${{ secrets.SEPOLIA_PRIVATE_KEY }}
         run: npm run test
