@@ -7,3 +7,6 @@ npm run node &
 sleep 5
 npx hardhat --max-memory 518 compile
 npm run deploylocal
+
+# スクリプトが終了しないようにする
+tail -f /dev/null
