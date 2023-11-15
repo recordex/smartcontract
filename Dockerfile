@@ -1,5 +1,7 @@
 FROM node:18.11.0
 
+ENV HOSTNAME "0.0.0.0"
+
 # node modules のダウンロード
 WORKDIR /app
 COPY package*.json ./
