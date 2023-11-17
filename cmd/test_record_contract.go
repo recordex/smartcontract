@@ -13,7 +13,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 
-	"github.com/recordex/recordex/smartcontract/pkg/record"
+	"github.com/recordex/smartcontract/pkg/record"
 )
 
 const RecordContractAddress = "0x474Fc6f8BAF5B4E26E238efbD1cA88FCd462F330"

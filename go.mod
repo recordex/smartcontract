@@ -1,4 +1,4 @@
-module github.com/recordex/recordex/smartcontract
+module github.com/recordex/smartcontract
 
 go 1.21.2
 
