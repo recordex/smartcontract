@@ -1,9 +1,9 @@
 {
   "name": "@recordex/smartcontract",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Recordex smart contract types package",
   "main": "typechain-types/index.ts",
-  "types": "typechain-types/index.d.ts",
+  "types": "typechain-types/hardhat.d.ts",
   "scripts": {
     "build": "make build",
     "prepare": "npm run build",
