@@ -1,14 +1,17 @@
 {
-  "name": "hardhat-project",
-  "version": "0.1.0",
-  "private": true,
+  "name": "@recordex/smartcontract",
+  "version": "0.0.2",
+  "description": "Recordex smart contract types package",
+  "main": "typechain-types/index.ts",
+  "types": "typechain-types/index.d.ts",
   "scripts": {
+    "build": "make build",
+    "prepare": "npm run build",
+    "test": "hardhat test",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write .",
     "fix": "npm run lint && npm run format",
     "node": "npx hardhat node --hostname 0.0.0.0",
-    "compile": "make compile",
-    "test": "hardhat test",
     "deploysepolia": "npx hardhat run scripts/deploy.ts --network sepolia",
     "deploylocal": "npx hardhat run scripts/deploy.ts --network localhost"
   },
