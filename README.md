@@ -36,6 +36,11 @@ Data will be stored in a JSON file. The JSON file will contain the following:
 }
 ```
 
+## To Install @recordex/smartcontract package
+
+This article is useful for setting up github npm registry.
+https://docs.github.com/ja/packages/working-with-a-github-packages-registry/working-with-the-npm-registry
+
 ## About Hardhat
 
 This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
