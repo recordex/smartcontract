@@ -7,6 +7,7 @@ on:
 
 jobs:
   # 参考: https://docs.github.com/ja/actions/publishing-packages/publishing-nodejs-packages
+  # 参考: https://github.com/actions/setup-node/blob/main/docs/advanced-usage.md#publish-to-npmjs-and-gpr-with-npm
   build-package:
     runs-on: ubuntu-latest
     permissions:
@@ -20,11 +21,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-          registry-url: 'https://npm.pkg.github.com'
+          registry-url: 'https://registry.npmjs.org'
       - run: npm ci
-      - run: npm publish
+      - run: npm publish --access public
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   deploy-to-testnet:
     runs-on: ubuntu-latest
