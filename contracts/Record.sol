@@ -44,6 +44,7 @@ contract Record is AccessControl {
         // ファイルが存在し、最後のファイルのハッシュが引数で指定されたハッシュと一致する場合にのみ追加
         uint256 metadataListLength = files[fileName].length;
         require(metadataListLength == 0 || files[fileName][metadataListLength - 1].hash == previousFileHash, "Previous file hash does not match");
+        require(fileHash != previousFileHash, "New file hash must be different from previous file hash");
 
         files[fileName].push(FileMetadata(fileHash, msg.sender, block.timestamp));
         emit FileAdded(fileName, fileHash, msg.sender, block.timestamp);
