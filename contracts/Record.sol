@@ -9,7 +9,6 @@ contract Record is AccessControl {
     bytes32 public constant WRITE_ROLE = keccak256("WRITE_ROLE");
     bytes32 public constant DELETE_ROLE = keccak256("DELETE_ROLE");
 
-
     // ファイルのメタデータを格納するための構造体
     struct FileMetadata {
         bytes32 hash;
@@ -35,11 +34,18 @@ contract Record is AccessControl {
     }
 
     receive() external payable {}
+
     fallback() external payable {}
 
     // ファイルを追加するための関数（書き込み権限が必要）
-    function addFile(string memory fileName, bytes32 fileHash) public {
+    function addFile(string memory fileName, bytes32 fileHash, bytes32 previousFileHash) public {
         require(hasRole(WRITE_ROLE, msg.sender), "Caller does not have write permission");
+
+        // ファイルが存在し、最後のファイルのハッシュが引数で指定されたハッシュと一致する場合にのみ追加
+        uint256 metadataListLength = files[fileName].length;
+        require(metadataListLength == 0 || files[fileName][metadataListLength - 1].hash == previousFileHash, "Previous file hash does not match");
+        require(fileHash != previousFileHash, "New file hash must be different from previous file hash");
+
         files[fileName].push(FileMetadata(fileHash, msg.sender, block.timestamp));
         emit FileAdded(fileName, fileHash, msg.sender, block.timestamp);
     }
