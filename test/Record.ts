@@ -71,7 +71,7 @@ describe('Record Contract', function () {
 
     // anyValue は、withArgs の引数の値が何であっても良いことを表す。
     // 参照: https://hardhat.org/hardhat-chai-matchers/docs/overview
-    await expect(await hardhatRecord.addFile(fileName, fileHash))
+    await expect(await hardhatRecord.addFile(fileName, fileHash, ethers.encodeBytes32String("0")))
       .to.emit(hardhatRecord, 'FileAdded')
       .withArgs(fileName, fileHash, deployer.address, anyValue);
   });
@@ -84,21 +84,20 @@ describe('Record Contract', function () {
     const fileHash =
       '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef';
 
-    await hardhatRecord.addFile(fileName, fileHash);
+    await hardhatRecord.addFile(fileName, fileHash,ethers.encodeBytes32String("0"));
     await expect(await hardhatRecord.deleteFile(fileName))
       .to.emit(hardhatRecord, 'FileDeleted')
       .withArgs(fileName, deployer.address);
   });
 
   it('正常系: ファイルのハッシュ値の履歴を取得できるか', async function () {
-    await ethers.getSigners();
     const hardhatRecord = await ethers.deployContract('Record');
 
     const fileName = 'test.txt';
     const fileHash =
       '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef';
 
-    await hardhatRecord.addFile(fileName, fileHash);
+    await hardhatRecord.addFile(fileName, fileHash, ethers.encodeBytes32String("0"));
     let fileHashHistory: Record.FileMetadataStructOutput[];
 
     fileHashHistory = await hardhatRecord.getFileMetadataHistory(fileName);
@@ -119,7 +118,7 @@ describe('Record Contract', function () {
       '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef';
 
     await expect(
-      hardhatRecord.connect(user).addFile(fileName, fileHash),
+      hardhatRecord.connect(user).addFile(fileName, fileHash, ethers.encodeBytes32String("0")),
     ).to.be.revertedWith('Caller does not have write permission');
   });
 
@@ -131,7 +130,7 @@ describe('Record Contract', function () {
     const fileHash =
       '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef';
 
-    await hardhatRecord.addFile(fileName, fileHash);
+    await hardhatRecord.addFile(fileName, fileHash,ethers.encodeBytes32String("0"));
     await expect(
       hardhatRecord.connect(user).deleteFile(fileName),
     ).to.be.revertedWith('Caller does not have delete permission');
