@@ -1,6 +1,6 @@
 {
   "name": "@recordex/smartcontract",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Recordex smart contract types package",
   "main": "typechain-types/index.ts",
   "types": "typechain-types/hardhat.d.ts",
